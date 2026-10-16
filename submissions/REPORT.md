@@ -1,0 +1,29 @@
+# CrewAI Build Report
+
+**Name:** Namita Joanna Moses 
+**Topic I used:** Mechatronics Engineering Team
+
+## 1. What I changed
+I changed the original research pipeline into an agentic mechatronics engineering team made up of a Mechanical Designer, Systems Engineer, Quality Control Engineer, and Program Lead. I chose this domain because I studied mechatronics engineering and still have a huge passion for robotics. Each role also produces a different kind of output (design options, system structure, failure risks), which makes it easy to see what each agent contributes.
+
+The file I changed was `main.py` in the `crewai-kit` folder. I edited four parts:
+
+1. **Agents:** I rewrote each role, goal, and backstory so they treat the topic as a concept to brainstorm.
+2. **Tasks:** I rewrote every task description and expected output, capped each at about 250 words, and added a `report task` for the Program Lead that uses ‘context’ to read the other three tasks' outputs.
+3. **Crew:** I updated the agents and tasks lists to match the new roles, in order.
+4. **Default topic:** I changed it to a rescue robot for high-risk environments, so it fits the mechatronics team.
+
+
+## 2. How CrewAI works
+CrewAI has three pieces, the agents, the tasks, and the crew. An agent is an LLM given a role, goal, and backstory, which together act as its instructions. A task is one piece of work with a description, an expected output, and the agent who owns it. A crew puts the agents and tasks together and runs them using a process. `Process.sequential` was used so the tasks run in the order I listed them, and each task's output is passed along as context to the ones after it. The placeholders for the topic get filled in when I call in the `crew.kickoff(inputs={"topic": ...})` line so the same code works for any topic. My change worked because almost all of the behavior comes from those text fields. The model stayed the same, but a Systems Engineer with a goal of mapping subsystems produces very different output than a Research Analyst collecting facts. Each of my agents answers the same topic from its own point of view, and the task descriptions tell it what to deliver. The Program Lead works because its task lists the other three tasks in context, so it reads all of their outputs before writing. This also solved a problem I noticed where, `result.raw` only returns the last task's output, so making the last task a summary of everything means the saved file contains the whole team's work.
+
+## 3. Evidence
+With run 1 I used the research topic but run 2 focused on a mechatronics engineering topic. The results are saved in `run1_original` and `run2_changed`. In the first run, there were four agents designed to act as a research team, giving a research analysis, a technical writeup, filtered through editing, and fact-checked. In the second run, I changed this to a mechatronics engineering team that provided, a systems breakdown, two mechanical design options, a short list of failure risks with tests, and a final report from the Program Lead. The content was different in both output files because each time because the agents were different, with different purposes, tasks and topics to respond to. One thing that surprised me was I was initially thinking of curating a team that could create a plan from start to finish, inclusive of marketing. However, I realised that the code was written so the last agent could collect all the information and put it together. So, when I had initially added a marketer as the last agent, all I ended up with in the `explainer_run2.md` file was the output from the marketer agent. So, I then changed this to adapt to the structure of the way the file was built and made the last agent a program lead that tied everything together.
+
+## 4. Choosing a framework
+I would pick CrewAI for a project like mine because it is a straight line of specialists, which is how real engineering teams hand work along. Each role became an `Agent`, each deliverable became a `Task`, and the whole thing ran with `Process.sequential`. Changing the domain from research to mechatronics only meant rewriting text, not restructuring any code, which made it fast to try ideas. The task I wanted was for a team of agents to be able to provide a plan to any mechatronics product, and CrewAI definitely accomplished this best.
+
+LangGraph would have been harder for this project. I would have had to define a shared state, write a node for each role, and connect the edges myself, which is a lot of setup for four steps in a row. But LangGraph would have been easier for something closer to real engineering practice like having the Quality Control Engineer send a weak design back to the Mechanical Designer to be revised until it passes.
+
+## 5. Verification and AI use
+Since the kit has no web access, I had to manually check the outputs by reading through the output lines in the terminal and the `explainer_run2.md` file. Since, I had an idea of what kind of information needed to be passed between the various mechatronics roles, from personally doing these in my Bachelor's degree, I was able to tell when the agents were kind of going overboard with their outputs. For instance, the first time they got way too technical, their outputs even included many mathematical formulae. I made some tweaks to their tasks so they fit the task of them just planning how to go through this process on a superficial level. I did use AI assistance to curate optimal prompts for the tasks, but since I felt I knew better what I expected out of the team I still had to go through the outputs and verify it myself.
